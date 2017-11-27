@@ -18,7 +18,7 @@ const (
 	//PROJECT_ID = "around-xxx"
 	//BT_INSTANCE = "around-post"
 	// Needs to update this URL if you deploy it to cloud.
-	ES_URL = "http://35.185.95.127:9200"
+	ES_URL = "http://35.196.92.255:9200"
 )
 
 //type 等于java 中的class，也等于c++中的struc
