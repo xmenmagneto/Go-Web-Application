@@ -17,11 +17,9 @@ const (
 	INDEX = "around"
 	TYPE = "post"
 	DISTANCE = "200km"
-	// Needs to update
 	PROJECT_ID = "around-187105"
-	BT_INSTANCE = "around-post"
-	// Needs to update this URL if you deploy it to cloud.
-	ES_URL = "http://35.190.158.4:9200"
+	BT_INSTANCE = "around-post"  //BigTable instance
+	ES_URL = "http://35.227.107.152:9200"
 )
 
 //type 等于java 中的class，也等于c++中的struc
@@ -39,7 +37,7 @@ type Post struct {
 
 
 func main() {
-	// Create a client
+	// Create a client to ElasticSearch
 	client, err := elastic.NewClient(elastic.SetURL(ES_URL), elastic.SetSniff(false))
 	if err != nil {
 		panic(err)
@@ -90,11 +88,11 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id := uuid.New()
-	// Save to ES.
+	// Save to ElasticSearch.
 	saveToES(&p, id)
 
+	//then save to BigTable
 	ctx := context.Background()
-	// you must update project name here
 	bt_client, err := bigtable.NewClient(ctx, PROJECT_ID, BT_INSTANCE)
 	if err != nil {
 		panic(err)
@@ -122,7 +120,7 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
 
 //Save a post to ElasticSearch
 func saveToES(p *Post, id string) {
-	// Create a client, 连上elasticsearch
+	// Create a client, 连上ElasticSearch
 	client, err := elastic.NewClient(elastic.SetURL(ES_URL), elastic.SetSniff(false))
 	if err != nil {
 		panic(err)
@@ -153,11 +151,11 @@ func handlerSearch(w http.ResponseWriter, r *http.Request) {
 	// range is optional
 	ran := DISTANCE
 	if val := r.URL.Query().Get("range"); val != "" {
-		ran = val + "km"
+		ran = val + "km"  //更新range
 	}
 
 	fmt.Printf( "Search received: %f %f %s\n", lat, lon, ran)
-	// Create a client, 连上elasticsearch
+	// Create a client, 连上ElasticSearch
 	client, err := elastic.NewClient(elastic.SetURL(ES_URL), elastic.SetSniff(false))
 	if err != nil {
 		panic(err)
@@ -181,7 +179,7 @@ func handlerSearch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// searchResult is of type SearchResult and returns hits, suggestions,
-	// and all kinds of other information from Elasticsearch.
+	// and all kinds of other information from ElasticSearch.
 	fmt.Printf("Query took %d milliseconds\n", searchResult.TookInMillis)
 	// TotalHits is another convenience function that works even when something goes wrong.
 	fmt.Printf("Found a total of %d post\n", searchResult.TotalHits())
@@ -198,6 +196,7 @@ func handlerSearch(w http.ResponseWriter, r *http.Request) {
 			ps = append(ps, p)  //把 p append到array上
 		}
 	}
+	//convert to json format
 	js, err := json.Marshal(ps)
 	if err != nil {
 		panic(err)
@@ -215,7 +214,7 @@ func containsFilteredWords(s *string) bool {
 		"100",
 	}
 	for _, word := range filteredWords {
-		if strings.Contains(*s, word) {
+		if strings.Contains(*s, word) {  //s 包含 word
 			return true;
 		}
 	}
