@@ -92,28 +92,28 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
 	saveToES(&p, id)
 
 	//then save to BigTable
-	ctx := context.Background()
-	bt_client, err := bigtable.NewClient(ctx, PROJECT_ID, BT_INSTANCE)
-	if err != nil {
-		panic(err)
-		return
-	}
-	// TODO (student questions) save Post into BT as well
-	tbl := bt_client.Open("post")
-	mut := bigtable.NewMutation()
-	t := bigtable.Now()
-
-	mut.Set("post", "user", t, []byte(p.User))
-	mut.Set("post", "message", t, []byte(p.Message))
-	mut.Set("location", "lat", t, []byte(strconv.FormatFloat(p.Location.Lat, 'f', -1, 64)))
-	mut.Set("location", "lon", t, []byte(strconv.FormatFloat(p.Location.Lon, 'f', -1, 64)))
-
-	err = tbl.Apply(ctx, id, mut)
-	if err != nil {
-		panic(err)
-		return
-	}
-	fmt.Printf("Post is saved to BigTable: %s\n", p.Message)
+	//ctx := context.Background()
+	//bt_client, err := bigtable.NewClient(ctx, PROJECT_ID, BT_INSTANCE)
+	//if err != nil {
+	//	panic(err)
+	//	return
+	//}
+	//// TODO (student questions) save Post into BT as well
+	//tbl := bt_client.Open("post")
+	//mut := bigtable.NewMutation()
+	//t := bigtable.Now()
+	//
+	//mut.Set("post", "user", t, []byte(p.User))
+	//mut.Set("post", "message", t, []byte(p.Message))
+	//mut.Set("location", "lat", t, []byte(strconv.FormatFloat(p.Location.Lat, 'f', -1, 64)))
+	//mut.Set("location", "lon", t, []byte(strconv.FormatFloat(p.Location.Lon, 'f', -1, 64)))
+	//
+	//err = tbl.Apply(ctx, id, mut)
+	//if err != nil {
+	//	panic(err)
+	//	return
+	//}
+	//fmt.Printf("Post is saved to BigTable: %s\n", p.Message)
 }
 
 
