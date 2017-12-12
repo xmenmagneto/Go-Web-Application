@@ -11,7 +11,11 @@ import (
 	"github.com/pborman/uuid"
 	"strings"
 	"context"
-	"cloud.google.com/go/bigtable"
+	"cloud.google.com/go/storage"
+
+	//"cloud.google.com/go/bigtable"
+	"io"
+	"os"
 )
 const (
 	INDEX = "around"
@@ -20,6 +24,7 @@ const (
 	PROJECT_ID = "around-187105"
 	BT_INSTANCE = "around-post"  //BigTable instance
 	ES_URL = "http://35.227.107.152:9200"
+	BUCKET_NAME = "post-images-187105"
 )
 
 //type 等于java 中的class，也等于c++中的struc
@@ -33,6 +38,7 @@ type Post struct {
 	User     string `json:"user"`
 	Message  string  `json:"message"`
 	Location Location `json:"location"`
+	Url    string `json:"url"`
 }
 
 
@@ -54,11 +60,11 @@ func main() {
 		mapping := `{
                     "mappings":{
  			"post":{
-                                  "properties":{
+                        	"properties":{
                                          "location":{
                                                 "type":"geo_point"
                                          }
-                                  }
+                                }
                         }
                     }
              }
@@ -70,7 +76,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("started-service")
+	fmt.Println("started-service") //started ElasticSearch
 	http.HandleFunc("/post", handlerPost)
 	http.HandleFunc("/search", handlerSearch)
 	log.Fatal(http.ListenAndServe(":8080", nil))
@@ -78,42 +84,92 @@ func main() {
 
 
 func handlerPost(w http.ResponseWriter, r *http.Request) {
-	// Parse from body of request to get a json object.
-	fmt.Println("Received one post request")
-	decoder := json.NewDecoder(r.Body)
-	var p Post   //Post是之前定义的
-	if err := decoder.Decode(&p); err != nil {
-		panic(err)  //报错
-		return
+	// Other codes
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+
+
+	// 32 << 20 is the maxMemory param for ParseMultipartForm, equals to 32MB (1MB = 1024 * 1024 bytes = 2^20 bytes)
+	// After you call ParseMultipartForm, the file will be saved in the server memory with maxMemory size.
+	// If the file size is larger than maxMemory, the rest of the data will be saved in a system temporary file.
+	r.ParseMultipartForm(32 << 20)  //开辟一个很大的内存空间
+
+	// Parse from form data.
+	fmt.Printf("Received one post request %s\n", r.FormValue("message"))
+	lat, _ := strconv.ParseFloat(r.FormValue("lat"), 64)
+	lon, _ := strconv.ParseFloat(r.FormValue("lon"), 64)
+	p := &Post{
+		User:    "1111",
+		Message: r.FormValue("message"),
+		Location: Location{
+			Lat: lat,
+			Lon: lon,
+		},
 	}
 
 	id := uuid.New()
-	// Save to ElasticSearch.
-	saveToES(&p, id)
 
-	//then save to BigTable
-	//ctx := context.Background()
-	//bt_client, err := bigtable.NewClient(ctx, PROJECT_ID, BT_INSTANCE)
-	//if err != nil {
-	//	panic(err)
-	//	return
-	//}
-	//// TODO (student questions) save Post into BT as well
-	//tbl := bt_client.Open("post")
-	//mut := bigtable.NewMutation()
-	//t := bigtable.Now()
-	//
-	//mut.Set("post", "user", t, []byte(p.User))
-	//mut.Set("post", "message", t, []byte(p.Message))
-	//mut.Set("location", "lat", t, []byte(strconv.FormatFloat(p.Location.Lat, 'f', -1, 64)))
-	//mut.Set("location", "lon", t, []byte(strconv.FormatFloat(p.Location.Lon, 'f', -1, 64)))
-	//
-	//err = tbl.Apply(ctx, id, mut)
-	//if err != nil {
-	//	panic(err)
-	//	return
-	//}
-	//fmt.Printf("Post is saved to BigTable: %s\n", p.Message)
+	file, _, err := r.FormFile("image")
+	if err != nil {
+		http.Error(w, "Image is not available", http.StatusInternalServerError)
+		fmt.Printf("Image is not available %v.\n", err)
+		return
+	}
+
+	ctx := context.Background()
+	defer file.Close()  //call this until surrounding codes are finished
+	// replace it with your real bucket name.
+	_, attrs, err := saveToGCS(ctx, file, BUCKET_NAME, id)
+	if err != nil {
+		http.Error(w, "GCS is not setup", http.StatusInternalServerError)
+		fmt.Printf("GCS is not setup %v\n", err)
+		return
+	}
+	// Update the media link after saving to GCS.
+	p.Url = attrs.MediaLink
+
+	// Save to ES.
+	saveToES(p, id)
+
+	// Save to BigTable.
+	//saveToBigTable(p, id)
+}
+
+
+func saveToGCS(ctx context.Context, r io.Reader, bucket, name string) (*storage.ObjectHandle, *storage.ObjectAttrs, error) {
+	// Student questions
+
+	// Creates a client.
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		log.Fatalf("Failed to create client: %v", err)
+	}
+
+	// Creates a Bucket instance.
+	bucketInstance := client.Bucket(bucket)
+	// Next check if the bucket exists
+	if _, err = bucketInstance.Attrs(ctx); err != nil {
+		return nil, nil, err
+	}
+
+
+	obj := bucketInstance.Object(name)
+	w := obj.NewWriter(ctx)
+
+	if _, err = io.Copy(w, r); err != nil {
+		return nil, nil, err
+	}
+	if err := w.Close(); err != nil {
+		return nil, nil, err
+	}
+	//让所有用户都有read权限
+	if err := obj.ACL().Set(ctx, storage.AllUsers, storage.RoleReader); err != nil {
+		return nil, nil, err
+	}
+	attrs, err := obj.Attrs(ctx)
+	fmt.Printf("Post is saved to GCS: %s\n", attrs.MediaLink)
+	return obj, attrs, err
 }
 
 
@@ -165,7 +221,7 @@ func handlerSearch(w http.ResponseWriter, r *http.Request) {
 	// Define geo distance query as specified in
 	// https://www.elastic.co/guide/en/elasticsearch/reference/5.2/query-dsl-geo-distance-query.html
 	q := elastic.NewGeoDistanceQuery("location")
-	q = q.Distance(ran).Lat(lat).Lon(lon)
+	q = q.Distance(ran).Lat(lat).Lon(lon)  //设定搜索范围
 
 	// Some delay may range from seconds to minutes. So if you don't get enough results. Try it later.
 	searchResult, err := client.Search().
@@ -213,6 +269,7 @@ func containsFilteredWords(s *string) bool {
 		"fuck",
 		"100",
 	}
+	//check every filteredWords against original string
 	for _, word := range filteredWords {
 		if strings.Contains(*s, word) {  //s 包含 word
 			return true;
