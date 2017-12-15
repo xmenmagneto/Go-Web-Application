@@ -19,6 +19,7 @@ import (
 	"github.com/auth0/go-jwt-middleware"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
+	"github.com/go-redis/redis"
 )
 const (
 	INDEX = "around"
@@ -27,7 +28,10 @@ const (
 	PROJECT_ID = "around-187105"
 	BT_INSTANCE = "around-post"  //BigTable instance
 	ES_URL = "http://35.227.107.152:9200"
+	ENABLE_MEMCACHE = true
 	BUCKET_NAME = "post-images-187105"
+	// Update this with your redis url
+	REDIS_URL       = "redis-18863.c1.us-central1-2.gce.cloud.redislabs.com:18863"
 )
 
 var mySigningKey = []byte("secret")  //my private key  (server private key)
@@ -231,6 +235,26 @@ func handlerSearch(w http.ResponseWriter, r *http.Request) {
 	ran := DISTANCE
 	if val := r.URL.Query().Get("range"); val != "" {
 		ran = val + "km"  //更新range
+	}
+
+	key := r.URL.Query().Get("lat") + ":" + r.URL.Query().Get("lon") + ":" + ran
+	if ENABLE_MEMCACHE {
+		rs_client := redis.NewClient(&redis.Options{
+			Addr:     REDIS_URL,
+			Password: "", // no password set
+			DB:       0,  // use default DB
+		})
+
+		val, err := rs_client.Get(key).Result()
+		if err != nil {
+			//第一次登录，or缓存失效
+			fmt.Printf("Redis cannot find the key %s as %v.\n", key, err)
+		} else {
+			fmt.Printf("Redis find the key %s.\n", key)
+			w.Header().Set("Content-Type", "application/json")
+			w.Write([]byte(val))
+			return //不用去ElasticSearch找了
+		}
 	}
 
 	fmt.Printf( "Search received: %f %f %s\n", lat, lon, ran)
