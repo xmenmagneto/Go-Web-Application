@@ -20,6 +20,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"github.com/go-redis/redis"
+	"time"
 )
 const (
 	INDEX = "around"
@@ -305,6 +306,21 @@ func handlerSearch(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 		return
 	}
+
+	if ENABLE_MEMCACHE {
+		//Student question: please complete the Set here
+		rs_client := redis.NewClient(&redis.Options{
+			Addr:     REDIS_URL,
+			Password: "", // no password set
+			DB:       0,  // use default DB
+		})
+
+		err := rs_client.Set(key, string(js), time.Second*30).Err()
+		if err != nil {
+			fmt.Printf("Redis cannot save the key %s as %v.\n", key, err)
+		}
+	}
+
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")

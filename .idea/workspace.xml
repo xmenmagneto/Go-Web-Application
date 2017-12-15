@@ -4,7 +4,6 @@
     <list default="true" id="3e7df0b0-7b68-4ef5-bcc8-6920d1b2747c" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.go" afterPath="$PROJECT_DIR$/main.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/user.go" afterPath="$PROJECT_DIR$/user.go" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -25,10 +24,10 @@
       <file leaf-file-name="main.go" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="390">
-              <caret line="255" column="51" lean-forward="false" selection-start-line="255" selection-start-column="51" selection-end-line="255" selection-end-column="51" />
+            <state relative-caret-position="299">
+              <caret line="319" column="68" lean-forward="false" selection-start-line="319" selection-start-column="68" selection-end-line="319" selection-end-column="68" />
               <folding>
-                <element signature="e#14#381#0" expanded="true" />
+                <element signature="e#14#389#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -76,8 +75,8 @@
     <treeState />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="483" />
-    <option name="y" value="39" />
+    <option name="x" value="400" />
+    <option name="y" value="274" />
     <option name="width" value="999" />
     <option name="height" value="773" />
   </component>
@@ -403,7 +402,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="483" y="39" width="999" height="773" extended-state="0" />
+    <frame x="400" y="274" width="999" height="773" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -454,7 +453,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#14#381#0" expanded="true" />
+            <element signature="e#14#389#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -472,7 +471,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#14#381#0" expanded="true" />
+            <element signature="e#14#389#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -490,7 +489,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#14#381#0" expanded="true" />
+            <element signature="e#14#389#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -508,7 +507,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#14#381#0" expanded="true" />
+            <element signature="e#14#389#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -526,7 +525,7 @@
         <state relative-caret-position="2310">
           <caret line="163" column="39" lean-forward="false" selection-start-line="163" selection-start-column="39" selection-end-line="163" selection-end-column="39" />
           <folding>
-            <element signature="e#14#381#0" expanded="true" />
+            <element signature="e#14#389#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -536,7 +535,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#14#381#0" expanded="true" />
+            <element signature="e#14#389#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -546,7 +545,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#14#381#0" expanded="true" />
+            <element signature="e#14#389#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -556,7 +555,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#14#381#0" expanded="true" />
+            <element signature="e#14#389#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -566,7 +565,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#14#381#0" expanded="true" />
+            <element signature="e#14#389#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -591,10 +590,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="255" column="51" lean-forward="false" selection-start-line="255" selection-start-column="51" selection-end-line="255" selection-end-column="51" />
+        <state relative-caret-position="299">
+          <caret line="319" column="68" lean-forward="false" selection-start-line="319" selection-start-column="68" selection-end-line="319" selection-end-column="68" />
           <folding>
-            <element signature="e#14#381#0" expanded="true" />
+            <element signature="e#14#389#0" expanded="true" />
           </folding>
         </state>
       </provider>
