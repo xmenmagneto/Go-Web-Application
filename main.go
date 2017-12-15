@@ -96,6 +96,7 @@ func main() {
 	r.Handle("/search", jwtMiddleware.Handler(http.HandlerFunc(handlerSearch))).Methods("GET")
 	r.Handle("/login", http.HandlerFunc(loginHandler)).Methods("POST")
 	r.Handle("/signup", http.HandlerFunc(signupHandler)).Methods("POST")
+	//logout在client处理，所以不用写
 
 	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe(":8080", nil))
