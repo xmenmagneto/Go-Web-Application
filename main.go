@@ -15,7 +15,10 @@ import (
 
 	//"cloud.google.com/go/bigtable"
 	"io"
-	"os"
+	//"os"
+	"github.com/auth0/go-jwt-middleware"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/mux"
 )
 const (
 	INDEX = "around"
@@ -26,6 +29,8 @@ const (
 	ES_URL = "http://35.227.107.152:9200"
 	BUCKET_NAME = "post-images-187105"
 )
+
+var mySigningKey = []byte("secret")  //my private key  (server private key)
 
 //type 等于java 中的class，也等于c++中的struc
 type Location struct {
@@ -77,8 +82,22 @@ func main() {
 	}
 
 	fmt.Println("started-service") //started ElasticSearch
-	http.HandleFunc("/post", handlerPost)
-	http.HandleFunc("/search", handlerSearch)
+
+	// Here we are instantiating the gorilla/mux router
+	r := mux.NewRouter()
+	var jwtMiddleware = jwtmiddleware.New(jwtmiddleware.Options{
+		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+			return mySigningKey, nil
+		},
+		SigningMethod: jwt.SigningMethodHS256,  //加密方法
+	})
+
+	r.Handle("/post", jwtMiddleware.Handler(http.HandlerFunc(handlerPost))).Methods("POST")
+	r.Handle("/search", jwtMiddleware.Handler(http.HandlerFunc(handlerSearch))).Methods("GET")
+	r.Handle("/login", http.HandlerFunc(loginHandler)).Methods("POST")
+	r.Handle("/signup", http.HandlerFunc(signupHandler)).Methods("POST")
+
+	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
